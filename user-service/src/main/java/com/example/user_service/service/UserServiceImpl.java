@@ -31,13 +31,13 @@ public class UserServiceImpl implements UserService {
     public UserDto createUser(UserDto userDto) {
         // user의 초기 ID 랜덤 생성
         userDto.setUserId(UUID.randomUUID().toString());
+        // password 암호화
+        userDto.setEncryptedPwd(passwordEncoder.encode(userDto.getPwd()));
 
         ModelMapper mapper = new ModelMapper();
         // 매칭할 수 있는 정보의 전략을 강력하게 설정해 맞아떨어지지 않으면 지정할 수 없도록 설정
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserEntity userEntity = mapper.map(userDto, UserEntity.class);
-        // password 암호화
-        userEntity.setEncryptedPwd(passwordEncoder.encode(userDto.getPwd()));
 
         userRepository.save(userEntity);
 

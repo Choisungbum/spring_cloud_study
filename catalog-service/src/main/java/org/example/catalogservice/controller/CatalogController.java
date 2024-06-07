@@ -30,7 +30,7 @@ public class CatalogController {
     }
 
     @RequestMapping("health-check")
-    public String healthCheck() {
+    public String status() {
         return String.format("It's Working in User Service on PORT %s (%s)"
                 , env.getProperty("local.server.port"), env.getProperty("spring.application.name"));
     }
