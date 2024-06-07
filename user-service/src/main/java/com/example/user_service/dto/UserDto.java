@@ -1,8 +1,10 @@
 package com.example.user_service.dto;
 
+import com.example.user_service.vo.ResponseOrder;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class UserDto {
@@ -14,15 +16,5 @@ public class UserDto {
 
     private String encryptedPwd;
 
-    @Override
-    public String toString() {
-        return "UserDto{" +
-                "email='" + email + '\'' +
-                ", name='" + name + '\'' +
-                ", pwd='" + pwd + '\'' +
-                ", userId='" + userId + '\'' +
-                ", createdAt=" + createdAt +
-                ", encryptedPwd='" + encryptedPwd + '\'' +
-                '}';
-    }
+    private List<ResponseOrder> orders;
 }
