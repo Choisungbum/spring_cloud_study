@@ -1,0 +1,49 @@
+server:
+  port: 8000
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: apigateway-service
+  cloud:
+    gateway:
+      default-filters:
+        - name: GlobalFilter # GlobalFilter 클래스명 입력
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+      routes:
+          - id: first-service
+            uri: lb://MY-FIRST-SERVICE
+            predicates:
+              - Path=/first-service/**
+            filters:
+#              - AddRequestHeader=first-request, first-request-header2
+#              - AddResponseHeader=first-response, first-response-header2
+              - CustomFilter
+          - id: second-service
+            uri: lb://MY-SECOND-SERVICE
+            predicates:
+              - Path=/second-service/**
+            filters:
+#              - AddRequestHeader=second-request, second-request-header2
+#              - AddResponseHeader=second-response, second-response-header2
+              - name: CustomFilter      # 추가적인 파라미터가 없으면 이대로 진행해도 되지만 파라미터가 있다면
+              - name: LoggingFilter     # name 이라는 옵션을 꼭 써줘야 한다.
+                args:
+                  baseMessage: Hi, there.
+                  preLogger: true
+                  postLogger: true
+
+#logging:
+#  level:
+#    org.springframework.cloud.gateway: DEBUG
+#    org.springframework.cloud.netflix.eureka: DEBUG
+#    org.springframework.cloud.loadbalancer: DEBUG
