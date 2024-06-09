@@ -11,11 +11,15 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
+
+import java.util.function.Supplier;
 
 //@Configuration
 //@EnableWebSecurity
@@ -37,13 +41,24 @@ public class WebSecurtiy {
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
-        http.csrf((csrf) -> csrf.disable());
+
+        http.csrf( (csrf) -> csrf.disable());
+//        http.csrf(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((authz) -> authz
-                .requestMatchers(new AntPathRequestMatcher("/users/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/users", "POST")).permitAll()
+//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers("/**").access(this::hasIpAddress)
+                        .requestMatchers("/**").access(
+                                new WebExpressionAuthorizationManager("hasIpAddress('127.0.0.1') or hasIpAddress('172.30.1.48')"))
+                        .anyRequest().authenticated()
         );
 
         http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
+
+        //-----------------------------------------------------------------
 
 //        // Configure AuthenticationManagerBuilder
 //        AuthenticationManagerBuilder authenticationManagerBuilder =
@@ -56,11 +71,11 @@ public class WebSecurtiy {
 ////        http.csrf(AbstractHttpConfigurer::disable);
 //
 //        http.authorizeHttpRequests((authz) -> authz
-//                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
-//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-//                                .requestMatchers(new AntPathRequestMatcher("/users", "POST")).permitAll()
-//                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-////                        .requestMatchers("/**").access(this::hasIpAddress)
+////                                .requestMatchers(new AntPathRequestMatcher("/actuator/**")).permitAll()
+////                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+////                                .requestMatchers(new AntPathRequestMatcher("/users", "POST")).permitAll()
+////                                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+//                        .requestMatchers("/**").access(this::hasIpAddress)
 //                                .requestMatchers("/**").access(
 //                                        new WebExpressionAuthorizationManager("hasIpAddress('127.0.0.1') or hasIpAddress('172.30.1.48')"))
 //                                .anyRequest().authenticated()
@@ -71,15 +86,15 @@ public class WebSecurtiy {
 //
 //        http.addFilter(getAuthenticationFilter(authenticationManager));
 //        http.headers((headers) -> headers.frameOptions((frameOptions) -> frameOptions.sameOrigin()));
-//
+////
         return http.build();
     }
 
-//    private AuthorizationDecision hasIpAddress(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
-//        return new AuthorizationDecision(ALLOWED_IP_ADDRESS_MATCHER.matches(object.getRequest()));
-//    }
-//
-//    private AuthenticationFilterNew getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
-//        return new AuthenticationFilterNew(authenticationManager, userService, env);
-//    }
+    private AuthorizationDecision hasIpAddress(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+        return new AuthorizationDecision(ALLOWED_IP_ADDRESS_MATCHER.matches(object.getRequest()));
+    }
+
+    private AuthenticationFilter getAuthenticationFilter(AuthenticationManager authenticationManager) throws Exception {
+        return new AuthenticationFilter(authenticationManager, userService, env);
+    }
 }
