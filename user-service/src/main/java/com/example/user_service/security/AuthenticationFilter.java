@@ -1,5 +1,6 @@
 package com.example.user_service.security;
 
+import com.example.user_service.dto.UserDto;
 import com.example.user_service.service.UserService;
 import com.example.user_service.vo.RequestLogin;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private UserService userService;
-    private Environment environment;
+    private Environment environment; // 토큰 만료기간 등으 정보
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
                                    UserService userService, Environment environment) {
@@ -32,6 +34,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         this.environment = environment;
     }
 
+    // 사용자가 로그인시 제일 먼저 실행되는 메서드
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request
                                               , HttpServletResponse response) throws AuthenticationException {
@@ -62,6 +65,11 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain,
                                             Authentication authResult) throws IOException, ServletException {
         super.successfulAuthentication(request, response, chain, authResult);
+        log.debug(((User) authResult.getPrincipal()).getUsername());
+
+        String username = ((User) authResult.getPrincipal()).getUsername();
+        UserDto userDetails = userService.getUserDetailsByEmail(username);
+        // 토큰 생성 - 만료 시간, 보안 키 필요 -> application.yml
     }
 
 

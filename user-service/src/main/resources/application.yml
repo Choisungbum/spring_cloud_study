@@ -13,6 +13,13 @@ spring:
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true # 쿼리를 이쁘게 보여줌
+        use_sql_comments: true # 해당 쿼리가 왜 나왔는지 주석으로 보여줌
+
 #    username: sa
 #    password: 1234
 
@@ -29,3 +36,7 @@ eureka:
 
 greeting:
   message: Welcome to the Simple E-commerce
+
+logging:
+  level:
+    com.example.user_service: DEBUG

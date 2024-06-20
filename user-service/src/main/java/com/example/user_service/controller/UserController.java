@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/user-service")
+@RequestMapping("/") //
 @Slf4j
 public class UserController {
     // yaml 파일에 등록된 값을 가져오는 방법
